@@ -8,31 +8,27 @@ RUN apk add --no-cache 'su-exec>=0.2'
 
 RUN apk add --no-cache \
 # add "bash" for "[["
-		bash \
-		unzip
+		bash
 
 ENV NODE_ENV production
 
 ENV GHOST_CLI_VERSION 1.15.3
-
-RUN mkdir /app
-ADD Ghost-3.40.5.zip /app
-RUN unzip /app/Ghost-3.40.5.zip -d /app
 RUN set -eux; \
-	npm -g install /app \
+	npm install -g "ghost-cli@$GHOST_CLI_VERSION"; \
 	npm cache clean --force
-RUN npm link
 
 ENV GHOST_INSTALL /var/lib/ghost
 ENV GHOST_CONTENT /var/lib/ghost/content
 
-ENV GHOST_VERSION 3.40.5
 
+RUN mkdir /app
+ADD Ghost-3.40.5.zip /app
+ENV GHOST_VERSION 3.40.5
 RUN set -eux; \
 	mkdir -p "$GHOST_INSTALL"; \
 	chown node:node "$GHOST_INSTALL"; \
 	\
-	su-exec node ghost install "$GHOST_VERSION" --db sqlite3 --no-prompt --no-stack --no-setup --dir "$GHOST_INSTALL"; \
+	su-exec node ghost install /app/Ghost-3.40.5.zip --db sqlite3 --no-prompt --no-stack --no-setup --dir "$GHOST_INSTALL"; \
 	\
 # Tell Ghost to listen on all ips and not prompt for additional configuration
 	cd "$GHOST_INSTALL"; \
