@@ -8,14 +8,20 @@ RUN apk add --no-cache 'su-exec>=0.2'
 
 RUN apk add --no-cache \
 # add "bash" for "[["
-		bash
+		bash \
+		unzip
 
 ENV NODE_ENV production
 
 ENV GHOST_CLI_VERSION 1.15.3
+
+RUN mkdir /app
+ADD Ghost-3.40.5.zip /app
+RUN unzip /app/Ghost-3.40.5.zip -d /app
 RUN set -eux; \
-	npm install -g "ghost-cli@$GHOST_CLI_VERSION"; \
+	npm -g install /app \
 	npm cache clean --force
+RUN npm link
 
 ENV GHOST_INSTALL /var/lib/ghost
 ENV GHOST_CONTENT /var/lib/ghost/content
